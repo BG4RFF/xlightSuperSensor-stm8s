@@ -301,18 +301,17 @@ uint8_t ParseProtocol(){
             // todo
             if(rcvMsg.payload.bValue == DEVICE_SW_OFF)
             {
-              for( u8 key = '1'; key <= '3'; key++ ) {
-                relay_set_key(key, DEVICE_SW_OFF);
-              } 
-              Msg_Relay_Ack(_sender, gConfig.type, DEVICE_SW_OFF);
-              return 1;
+              targetSubID = gConfig.type & 0x0F;
+              _OnOff = AddKeyOperation(targetSubID, AIRPUR_STOP, AIRPUR_CMD_LEN);
             }
             else if(rcvMsg.payload.bValue == DEVICE_SW_ON)
             {
-              if( relay_set_key('1', DEVICE_SW_ON) ) {
-                Msg_Relay_Ack(_sender, gConfig.type, DEVICE_SW_ON);
-                return 1;
-              }
+              targetSubID = gConfig.type & 0x0F;
+              _OnOff = AddKeyOperation(targetSubID, AIRPUR_LOW, AIRPUR_CMD_LEN);
+            }
+            if( _needAck ) {
+              Msg_Relay_Ack(_sender, gConfig.type, _OnOff);
+              return 1;
             }
           }
           else if(IS_TARGET_AIRCONDITION(gConfig.type) )

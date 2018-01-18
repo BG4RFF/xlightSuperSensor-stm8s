@@ -1,6 +1,7 @@
 #include <stm8s.h>
 #include "_global.h"
 #include "keySimulator.h"
+#include "MyMessage.h"
 #include "xliNodeConfig.h"
 
 keyBuffer_t gKeyBuf[KEY_OP_MAX_BUFFERS];
@@ -121,6 +122,29 @@ bool ProduceKeyOperation(u8 _target, const char *_keyString, u8 _len) {
   return FALSE;
 }
 
+void WriteRelayKey(u8 _key, bool _on)
+{
+  bool rc = FALSE;
+  switch( _key ) {
+  case '1':
+    BF_SET(gConfig.relay_key_value, _on, 0, 1);
+    rc = TRUE;  
+    break;
+
+  case '2':
+    BF_SET(gConfig.relay_key_value, _on, 1, 1);
+    rc = TRUE;   
+    break;
+
+  case '3':
+    BF_SET(gConfig.relay_key_value, _on, 2, 1);
+    rc = TRUE;
+    break;
+  }
+  
+  if( rc ) gIsStatusChanged = TRUE;
+}
+
 u8 SimulateKeyPress(u8 _target, u8 _op, u8 *_keys) {
   GPIO_TypeDef *_port;
   GPIO_Pin_TypeDef _pin;
@@ -133,30 +157,37 @@ u8 SimulateKeyPress(u8 _target, u8 _op, u8 *_keys) {
       switch(_op) {
       case KEY_OP_STYLE_PRESS:
         relay_gpio_write_bit(_port, _pin, TRUE);
+        WriteRelayKey(_keys[i],TRUE);
         _delay = 20;
         break;
       case KEY_OP_STYLE_FAST_PRESS:
         relay_gpio_write_bit(_port, _pin, TRUE);
+        WriteRelayKey(_keys[i],TRUE);
         _delay = 10;
         break;
       case KEY_OP_STYLE_LONG_PRESS:
         relay_gpio_write_bit(_port, _pin, TRUE);
+        WriteRelayKey(_keys[i],TRUE);
         _delay = 50;
         break;
       case KEY_OP_STYLE_VLONG_PRESS:
         relay_gpio_write_bit(_port, _pin, TRUE);
+        WriteRelayKey(_keys[i],TRUE);
         _delay = 250;
         break;
       case KEY_OP_STYLE_HOLD:
         relay_gpio_write_bit(_port, _pin, TRUE);
+        WriteRelayKey(_keys[i],TRUE);
         _delay = 0;
         break;
       case KEY_OP_STYLE_RELEASE:
         relay_gpio_write_bit(_port, _pin, FALSE);
+        WriteRelayKey(_keys[i],FALSE);
         _delay = 0;
         break;
       case KEY_OP_STYLE_DBL_CLICK:
         relay_gpio_write_bit(_port, _pin, TRUE);
+        WriteRelayKey(_keys[i],TRUE);
         _delay = 10;
         break;
       }
@@ -180,10 +211,12 @@ bool FinishKeyPress(u8 _target, u8 _op, u8 *_keys, u8 _step) {
       case KEY_OP_STYLE_LONG_PRESS:
       case KEY_OP_STYLE_VLONG_PRESS:
         relay_gpio_write_bit(_port, _pin, FALSE);
+        WriteRelayKey(_keys[i],FALSE);
         break;
       case KEY_OP_STYLE_DBL_CLICK:
         if( _step < 4 ) { // 1 - on to off; 2 - off to on; 3 - on to off;
           relay_gpio_write_bit(_port, _pin, _step % 2 == 0);
+          WriteRelayKey(_keys[i],_step % 2 == 0);
           rc = FALSE;
         }
         break;

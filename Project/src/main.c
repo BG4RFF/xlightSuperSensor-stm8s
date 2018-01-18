@@ -921,6 +921,10 @@ int main( void ) {
 #endif  
   keySimulator_init();
   relay_key_init(); 
+  if(IS_TARGET_AIRPURIFIER(gConfig.type) )
+  { // AIRPURIFIER restore
+    relay_restore_keystates();
+  }
 #ifdef TEST
    testio();
 #endif
