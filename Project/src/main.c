@@ -355,35 +355,44 @@ void InitNodeAddress() {
   memcpy(gConfig.NetworkID, RF24_BASE_RADIO_ID, ADDRESS_WIDTH);
 }
 
+bool IsStatusInvalid() {
+  // gConfig.aircondStatus[2] > 32 temp more than 32
+  return( gConfig.version > XLA_VERSION || gConfig.version < XLA_MIN_VER_REQUIREMENT);
+}
+
 bool IsConfigInvalid() {
   return( gConfig.version > XLA_VERSION || gConfig.version < XLA_MIN_VER_REQUIREMENT 
        || gConfig.nodeID == 0 || gConfig.type != XLA_PRODUCT_Type
        || gConfig.rfPowerLevel > RF24_PA_MAX || gConfig.rfChannel > 127 || gConfig.rfDataRate > RF24_250KBPS );
 }
 
+bool isNodeIdInvalid()
+{
+  return( gConfig.nodeID != XLA_PRODUCT_NODEID  );
+}
 // Load config from Flash
 void LoadConfig()
 {
-  // Load the most recent settings from FLASH
+      // Load the config area
   Flash_ReadBuf(FLASH_DATA_START_PHYSICAL_ADDRESS, (uint8_t *)&gConfig, sizeof(gConfig));
-  //gConfig.version = XLA_VERSION + 1;
+  uint16_t nStatusLen = (uint8_t *)(&gConfig.nodeID) - (uint8_t *)(&gConfig);
   if( IsConfigInvalid() ) {
-      // If config is OK, then try to load config from backup area
-      Flash_ReadBuf(BACKUP_CONFIG_ADDRESS, (uint8_t *)&gConfig, sizeof(gConfig));
-      if( IsConfigInvalid() ) {
-        // If neither valid, then initialize config with default settings
+    // If config isn't OK, then try to load config from backup area
+    Flash_ReadBuf(BACKUP_CONFIG_ADDRESS+nStatusLen, (uint8_t *)&gConfig.nodeID, sizeof(gConfig)-nStatusLen);
+    bool backupInvalid = IsConfigInvalid();
+    InitNodeAddress();
+    if( backupInvalid ) {
+      // If neither valid, then initialize config with default settings
         memset(&gConfig, 0x00, sizeof(gConfig));
         gConfig.version = XLA_VERSION;
         InitNodeAddress();
         gConfig.subID = 0;
         gConfig.type = XLA_PRODUCT_Type;
         gConfig.rptTimes = 1;
-        //sprintf(gConfig.Organization, "%s", XLA_ORGANIZATION);
-        //sprintf(gConfig.ProductName, "%s", XLA_PRODUCT_NAME);
         gConfig.rfChannel = RF24_CHANNEL;
         gConfig.rfPowerLevel = RF24_PA_MAX;
         gConfig.rfDataRate = RF24_250KBPS;
-
+        
 #ifdef EN_SENSOR_ALS
         gConfig.senMap |= sensorALS;
 #endif
@@ -402,50 +411,79 @@ void LoadConfig()
 #ifdef EN_SENSOR_PM25
         gConfig.senMap |= sensorDUST;
 #endif
-      }
-      //gConfig.swTimes = 0;
-      gIsConfigChanged = TRUE;
-    } else {
-      uint8_t bytVersion;
-      Flash_ReadBuf(BACKUP_CONFIG_ADDRESS, (uint8_t *)&bytVersion, sizeof(bytVersion));
-      if( bytVersion != gConfig.version ) gNeedSaveBackup = TRUE;
     }
-    // Load the most recent status from FLASH
-    uint8_t pData[50] = {0};
-    uint16_t nLen = (uint16_t)(&(gConfig.nodeID)) - (uint16_t)(&gConfig);
-    Flash_ReadBuf(STATUS_DATA_ADDRESS, pData, nLen);
+    gIsConfigChanged = TRUE;
+    SaveConfig();
+  } else {
+    uint8_t bytVersion;
+    Flash_ReadBuf(BACKUP_CONFIG_ADDRESS, (uint8_t *)&bytVersion, sizeof(bytVersion));
+    if( bytVersion != gConfig.version ) gNeedSaveBackup = TRUE;
+  }
+  // Load the most recent status from FLASH
+  uint8_t pData[50];
+  memset(pData,0x00,sizeof(pData));
+  uint16_t nLen = (uint8_t *)(&gConfig.rfChannel) - (uint8_t *)(&gConfig);
+  Flash_ReadBuf(STATUS_DATA_ADDRESS, pData, nLen);
+  if(pData[0] >= XLA_MIN_VER_REQUIREMENT && pData[0] <= XLA_VERSION)
+  { // status data valid    
+    memcpy(&gConfig,pData,nStatusLen);
+    if(isIdentityEqual(gConfig.NetworkID, RF24_BASE_RADIO_ID, ADDRESS_WIDTH) && !isNodeIdInvalid() )
+    { // valid nodeid but with default network config,can covered by status data or back data if they are valid
+      uint16_t networkOffset = (uint8_t *)(&gConfig.NetworkID) - (uint8_t *)(&gConfig);
+      if( !isIdentityEmpty(pData+networkOffset,sizeof(gConfig.NetworkID)) )
+      {
+        memcpy(gConfig.NetworkID,pData+networkOffset,sizeof(gConfig.NetworkID));
+      } 
+    } 
+  }
+  else
+  { // load backup area for status data
+    Flash_ReadBuf(BACKUP_CONFIG_ADDRESS, pData, nLen);
     if(pData[0] >= XLA_MIN_VER_REQUIREMENT && pData[0] <= XLA_VERSION)
-    {
-      memcpy(&gConfig,pData,nLen);
+    { // status data valid 
+      memcpy(&gConfig,pData,nStatusLen);
+      if(isIdentityEqual(gConfig.NetworkID, RF24_BASE_RADIO_ID, ADDRESS_WIDTH) && !isNodeIdInvalid())
+      { // valid nodeid but with default network config,can covered by status data or back data if they are valid
+        uint16_t networkOffset = (uint8_t *)(&gConfig.NetworkID) - (uint8_t *)(&gConfig);
+        if( !isIdentityEmpty(pData+networkOffset,sizeof(gConfig.NetworkID)) )
+        {
+          memcpy(gConfig.NetworkID,pData+networkOffset,sizeof(gConfig.NetworkID));
+        }        
+      }
     }
-    // Start ZenSensor
+  }
+ 
+  if(IsStatusInvalid())
+  {
+    // default status value
+    gConfig.version = XLA_VERSION;
     gConfig.state = 1;
-    gConfig.nodeID = XLA_PRODUCT_NODEID;
+  }
     // Engineering code
-    if(XLA_PRODUCT_Type == ZEN_TARGET_SUPERSENSOR)
-    {
-      gConfig.senMap |= sensorALS;
-      gConfig.senMap |= sensorMIC;
-      gConfig.senMap |= sensorDHT;
-      gConfig.senMap |= sensorDUST;
-      gConfig.senMap |= sensorIRKey;
-    }
-    if(XLA_PRODUCT_Type == ZEN_TARGET_SPOTLIGHT)
-    {
-      gConfig.subID = 4;
-    }
-    if(XLA_PRODUCT_Type == ZEN_TARGET_AIRCONDITION)
-    {
-      gConfig.subID = 1;
-    }
-    if(XLA_PRODUCT_Type == ZEN_TARGET_AIRPURIFIER)
-    {
-      gConfig.subID = 2;
-    }
-    if(XLA_PRODUCT_Type == ZEN_TARGET_CURTAIN)
-    {
-      gConfig.subID = 8;
-    }
+  if(XLA_PRODUCT_Type == ZEN_TARGET_SUPERSENSOR)
+  {
+    gConfig.senMap |= sensorALS;
+    gConfig.senMap |= sensorMIC;
+    gConfig.senMap |= sensorDHT;
+    gConfig.senMap |= sensorDUST;
+    gConfig.senMap |= sensorIRKey;
+  }
+  if(XLA_PRODUCT_Type == ZEN_TARGET_SPOTLIGHT)
+  {
+    gConfig.subID = 4;
+  }
+  if(XLA_PRODUCT_Type == ZEN_TARGET_AIRCONDITION)
+  {
+    gConfig.subID = 1;
+  }
+  if(XLA_PRODUCT_Type == ZEN_TARGET_AIRPURIFIER)
+  {
+    gConfig.subID = 2;
+  }
+  if(XLA_PRODUCT_Type == ZEN_TARGET_CURTAIN)
+  {
+    gConfig.subID = 8;
+  }
     
 #ifdef EN_PANEL_BUTTONS
     if( gConfig.btnAction[0][0].action > 0x0F || gConfig.btnAction[1][0].action > 0x0F ) {
