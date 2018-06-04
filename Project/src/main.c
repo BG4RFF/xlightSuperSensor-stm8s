@@ -4,6 +4,8 @@
 #include "xliNodeConfig.h"
 #include "ProtocolParser.h"
 #include "timer_4.h"
+#include "FlashDataStorage.h"
+#include "wwdg.h"
 
 #ifdef ZENREMOTE
 #include "relay_key.h"
@@ -92,20 +94,8 @@ void testio()
 }
 #endif
 
-// Starting Flash block number of backup config
-#define BACKUP_CONFIG_BLOCK_NUM         2
-#define BACKUP_CONFIG_ADDRESS           (FLASH_DATA_START_PHYSICAL_ADDRESS + BACKUP_CONFIG_BLOCK_NUM * FLASH_BLOCK_SIZE)
-#define STATUS_DATA_NUM                 4
-#define STATUS_DATA_ADDRESS             (FLASH_DATA_START_PHYSICAL_ADDRESS + STATUS_DATA_NUM * FLASH_BLOCK_SIZE)
-
 // RF channel for the sensor net, 0-127
 #define RF24_CHANNEL	   		100
-
-// Window Watchdog
-// Uncomment this line if in debug mode
-//#define DEBUG_NO_WWDG
-#define WWDG_COUNTER                    0x7f
-#define WWDG_WINDOW                     0x77
 
 // System Startup Status
 #define SYS_INIT                        0
@@ -150,7 +140,7 @@ Config_t gConfig;
 MyMessage_t sndMsg, rcvMsg;
 uint8_t *psndMsg = (uint8_t *)&sndMsg;
 uint8_t *prcvMsg = (uint8_t *)&rcvMsg;
-bool gIsChanged = FALSE;
+bool gIsConfigChanged = FALSE;
 bool gNeedSaveBackup = FALSE;
 bool gIsStatusChanged = FALSE;
 bool gResetRF = FALSE;
@@ -166,8 +156,6 @@ uint8_t mutex = 0;
 uint16_t mTimerKeepAlive = 0;
 uint8_t m_cntRFReset = 0;
 uint8_t m_cntRFSendFailed = 0;
-// avoid flash write operator reentry
-uint8_t flashWritting = 0;
 
 // curtain operation min interval
 #define CURTAIN_MIN_INTERVAL  50 // 500ms
@@ -256,151 +244,6 @@ void OpKeySimBuf()
     }
   }
 }
- 
-void itoa(unsigned int n, char * buf)
-{
-        int i;
-        
-        if(n < 10)
-        {
-                buf[0] = n + '0';
-                buf[1] = '\0';
-                return;
-        }
-        itoa(n / 10, buf);
-
-        for(i=0; buf[i]!='\0'; i++);
-        
-        buf[i] = (n % 10) + '0';
-        
-        buf[i+1] = '\0';
-}
-
-void printlog(uint8_t *pBuf)
-{
-#ifdef DEBUG_LOG
-  Uart2SendString(pBuf);
-#endif
-}
-
-void printnum(unsigned int num)
-{
-#ifdef DEBUG_LOG
-  char buf[10] = {0};
-  itoa(num,buf);
-  printlog(buf);
-#endif
-}
-
-// Initialize Window Watchdog
-void wwdg_init() {
-#ifndef DEBUG_NO_WWDG  
-  WWDG_Init(WWDG_COUNTER, WWDG_WINDOW);
-#endif  
-}
-
-// Feed the Window Watchdog
-void feed_wwdg(void) {
-#ifndef DEBUG_NO_WWDG    
-  uint8_t cntValue = WWDG_GetCounter() & WWDG_COUNTER;
-  if( cntValue < WWDG_WINDOW ) {
-    WWDG_SetCounter(WWDG_COUNTER);
-  }
-#endif  
-}
-
-
-int8_t wait_flashflag_status(uint8_t flag,uint8_t status)
-{
-    uint16_t timeout = 60000;
-    while( FLASH_GetFlagStatus(flag)== status && timeout--);
-    if(!timeout) 
-    {
-      printlog("timeout!");
-      return 1;
-    }
-    return 0;
-}
-
-
-void Flash_ReadBuf(uint32_t Address, uint8_t *Buffer, uint16_t Length) {
-  assert_param(IS_FLASH_ADDRESS_OK(Address));
-  assert_param(IS_FLASH_ADDRESS_OK(Address+Length));
-  
-  for( uint16_t i = 0; i < Length; i++ ) {
-    Buffer[i] = FLASH_ReadByte(Address+i);
-  }
-}
-
-bool Flash_WriteBuf(uint32_t Address, uint8_t *Buffer, uint16_t Length) {
-  assert_param(IS_FLASH_ADDRESS_OK(Address));
-  assert_param(IS_FLASH_ADDRESS_OK(Address+Length));
-  if(flashWritting == 1)
-  {
-    return FALSE;
-  }
-  flashWritting = 1;
-  // Init Flash Read & Write
-  FLASH_SetProgrammingTime(FLASH_PROGRAMTIME_STANDARD);
-  FLASH_Unlock(FLASH_MEMTYPE_DATA);
-  //while (FLASH_GetFlagStatus(FLASH_FLAG_DUL) == RESET);
-  if(wait_flashflag_status(FLASH_FLAG_DUL,RESET)) return FALSE;
-  
-  // Write byte by byte
-  bool rc = TRUE;
-  uint8_t bytVerify, bytAttmpts;
-  for( uint16_t i = 0; i < Length; i++ ) {
-    bytAttmpts = 0;
-    while(++bytAttmpts <= 3) {
-      FLASH_ProgramByte(Address+i, Buffer[i]);
-      FLASH_WaitForLastOperation(FLASH_MEMTYPE_DATA);
-      
-      // Read and verify the byte we just wrote
-      bytVerify = FLASH_ReadByte(Address+i);
-      if( bytVerify == Buffer[i] ) break;
-    }
-    if( bytAttmpts > 3 ) {
-      rc = FALSE;
-      break;
-    }
-  }
-  FLASH_Lock(FLASH_MEMTYPE_DATA);
-  flashWritting = 0;
-  return rc;
-}
- 
-bool Flash_WriteDataBlock(uint16_t nStartBlock, uint8_t *Buffer, uint16_t Length) {
-  // Init Flash Read & Write
-  if(flashWritting == 1) 
-  {
-    return FALSE;
-  }
-  flashWritting = 1;
-  FLASH_SetProgrammingTime(FLASH_PROGRAMTIME_STANDARD);
-  FLASH_Unlock(FLASH_MEMTYPE_DATA);
-  //while (FLASH_GetFlagStatus(FLASH_FLAG_DUL) == RESET);
-  if(wait_flashflag_status(FLASH_FLAG_DUL,RESET)) return FALSE;
-  
-  uint8_t WriteBuf[FLASH_BLOCK_SIZE];
-  uint16_t nBlockNum = (Length - 1) / FLASH_BLOCK_SIZE + 1;
-  for( uint16_t block = nStartBlock; block < nStartBlock + nBlockNum; block++ ) {
-    memset(WriteBuf, 0x00, FLASH_BLOCK_SIZE);
-    uint8_t maxLen = FLASH_BLOCK_SIZE;
-    if(block == nStartBlock + nBlockNum -1)
-    {
-      maxLen = Length - (nBlockNum -1)*FLASH_BLOCK_SIZE;
-    }
-    for( uint16_t i = 0; i < maxLen; i++ ) {
-      WriteBuf[i] = Buffer[(block - nStartBlock) * FLASH_BLOCK_SIZE + i];
-    }
-    FLASH_ProgramBlock(block, FLASH_MEMTYPE_DATA, FLASH_PROGRAMMODE_STANDARD, WriteBuf);
-    FLASH_WaitForLastOperation(FLASH_MEMTYPE_DATA);
-  }
-  
-  FLASH_Lock(FLASH_MEMTYPE_DATA);
-  flashWritting = 0;
-  return TRUE;
-}
 
 uint8_t *Read_UniqueID(uint8_t *UniqueID, uint16_t Length)  
 {
@@ -425,11 +268,40 @@ bool isNodeIdRequired()
   return( isIdentityEmpty(gConfig.NetworkID, ADDRESS_WIDTH) || isIdentityEqual(gConfig.NetworkID, RF24_BASE_RADIO_ID, ADDRESS_WIDTH) );
 }
 
+void UpdateNodeAddress(uint8_t _tx) {
+  memcpy(rx_addr, gConfig.NetworkID, ADDRESS_WIDTH);
+  rx_addr[0] = gConfig.nodeID;
+  memcpy(tx_addr, gConfig.NetworkID, ADDRESS_WIDTH);
+  if( _tx == NODEID_RF_SCANNER ) {
+    tx_addr[0] = NODEID_RF_SCANNER;
+  } else {
+    tx_addr[0] = (isNodeIdRequired() ? BASESERVICE_ADDRESS : NODEID_GATEWAY);
+  }
+  RF24L01_setup(gConfig.rfChannel, gConfig.rfDataRate, gConfig.rfPowerLevel, BROADCAST_ADDRESS);
+}
+
+// reset rf
+void ResetRFModule()
+{
+  if(gResetRF)
+  {
+    RF24L01_init();
+    NRF2401_EnableIRQ();
+    UpdateNodeAddress(NODEID_GATEWAY);
+    gResetRF=FALSE;
+  }
+  if(gResetNode)
+  {
+    mStatus = SYS_RESET;
+    gResetNode=FALSE;
+  }
+}
+
 // Save config to Flash
 void SaveBackupConfig()
 {
   if( gNeedSaveBackup ) {
-    // Overwrite entire config FLASH
+    // back config FLASH
     if(Flash_WriteDataBlock(BACKUP_CONFIG_BLOCK_NUM, (uint8_t *)&gConfig, sizeof(gConfig)))
     {
       gNeedSaveBackup = FALSE;
@@ -440,43 +312,40 @@ void SaveBackupConfig()
 // Save status to Flash
 void SaveStatusData()
 {
-    // Skip the first byte (version)
+  // status data contain nodeid subid and networkid
+  if(gIsStatusChanged)
+  {
+    gNeedSaveBackup = TRUE;
     uint8_t pData[50] = {0};
-    uint16_t nLen = (uint16_t)(&(gConfig.nodeID)) - (uint16_t)(&gConfig);
+    uint16_t nLen = (uint8_t *)(&gConfig.rfChannel) - (uint8_t *)(&gConfig);
     memcpy(pData, (uint8_t *)&gConfig, nLen);
     if(Flash_WriteDataBlock(STATUS_DATA_NUM, pData, nLen))
     {
       gIsStatusChanged = FALSE;
     }
+  }
 }
 
-// Save config to Flash
+// Save config data to Flash(can't be called at working time)
 void SaveConfig()
 {
-  if( gIsStatusChanged ) {
-    // Overwrite only Static & status parameters
-    SaveStatusData();
-    gIsChanged = TRUE;
-  }
-#ifdef TEST
-  PD7_High;
-#endif
-  if( gIsChanged ) {
-    // Overwrite entire config FLASH
-    if( !isNodeIdRequired() ) gNeedSaveBackup = TRUE;
+  if( gIsConfigChanged ) {
+    gNeedSaveBackup = TRUE;
+    // Overwrite entire config FLASH 
     uint8_t Attmpts = 0;
     while(++Attmpts <= 3) {
       if(Flash_WriteDataBlock(0, (uint8_t *)&gConfig, sizeof(gConfig)))
       {
-        gIsStatusChanged = FALSE;
-        gIsChanged = FALSE;
+        gIsConfigChanged = FALSE;
         break;
       }
     }
   }
-#ifdef TEST
-  PD7_Low;
-#endif
+  if(!gIsConfigChanged)
+  { // ensure rf info is up to date
+    ResetRFModule();
+  }
+  SaveStatusData();
 }
 
 // Initialize Node Address and look forward to being assigned with a valid NodeID by the SmartController
@@ -535,7 +404,7 @@ void LoadConfig()
 #endif
       }
       //gConfig.swTimes = 0;
-      gIsChanged = TRUE;
+      gIsConfigChanged = TRUE;
     } else {
       uint8_t bytVersion;
       Flash_ReadBuf(BACKUP_CONFIG_ADDRESS, (uint8_t *)&bytVersion, sizeof(bytVersion));
@@ -585,18 +454,6 @@ void LoadConfig()
 #endif    
 }
 
-void UpdateNodeAddress(uint8_t _tx) {
-  memcpy(rx_addr, gConfig.NetworkID, ADDRESS_WIDTH);
-  rx_addr[0] = gConfig.nodeID;
-  memcpy(tx_addr, gConfig.NetworkID, ADDRESS_WIDTH);
-  if( _tx == NODEID_RF_SCANNER ) {
-    tx_addr[0] = NODEID_RF_SCANNER;
-  } else {
-    tx_addr[0] = (isNodeIdRequired() ? BASESERVICE_ADDRESS : NODEID_GATEWAY);
-  }
-  RF24L01_setup(gConfig.rfChannel, gConfig.rfDataRate, gConfig.rfPowerLevel, BROADCAST_ADDRESS);
-}
-
 bool WaitMutex(uint32_t _timeout) {
   while(_timeout--) {
     if( mutex > 0 ) return TRUE;
@@ -615,23 +472,6 @@ bool NeedUpdateRFAddress(uint8_t _dest) {
     rc = TRUE;
   }
   return rc;
-}
-
-// reset rf
-void ResetRFModule()
-{
-  if(gResetRF)
-  {
-    RF24L01_init();
-    NRF2401_EnableIRQ();
-    UpdateNodeAddress(NODEID_GATEWAY);
-    gResetRF=FALSE;
-  }
-  if(gResetNode)
-  {
-    mStatus = SYS_RESET;
-    gResetNode=FALSE;
-  }
 }
 
 // Send message and switch back to receive mode
@@ -707,15 +547,13 @@ bool SendMyMessage() {
 void GotNodeID() {
   mGotNodeID = TRUE;
   UpdateNodeAddress(NODEID_GATEWAY);
-  gIsChanged = TRUE;
-  //SaveConfig();
+  gNeedSaveBackup = TRUE;
 }
 
 void GotPresented() {
   mStatus = SYS_RUNNING;
   gConfig.swTimes = 0;
   gIsStatusChanged = TRUE;
-  //SaveConfig();  
 }
 
 bool SayHelloToDevice(bool infinate) {
@@ -951,7 +789,7 @@ int main( void ) {
       // Feed the Watchdog
       feed_wwdg();
       
-#ifndef EN_SENSOR_DHT
+#ifdef EN_INFRARED
       IR_Send();
 #endif
       

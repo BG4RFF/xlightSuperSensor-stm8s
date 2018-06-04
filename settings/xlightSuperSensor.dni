@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=-1372893389
+Checksum=-607289955
 [CallStack]
 ShowArgs=0
 [Disassembly]
@@ -41,11 +41,20 @@ LogFile=_ ""
 Bp0=_ "STD_CODE" "{$PROJ_DIR$\Project\src\button.c}.374.13" 0 0 0 0 "" 0 ""
 Bp1=_ "STD_CODE" "{$PROJ_DIR$\Project\src\button.c}.80.3" 0 0 0 0 "" 0 ""
 Bp2=_ "STD_CODE" "{$PROJ_DIR$\Project\src\button.c}.468.1" 0 0 0 0 "" 0 ""
-Bp3=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.59.3" 0 0 0 0 "" 0 ""
+Bp3=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.73.3" 0 0 0 0 "" 0 ""
 Bp4=_ "STD_CODE" "{$PROJ_DIR$\Project\src\sen_pm25.c}.94.12" 0 0 0 0 "" 0 ""
-Bp5=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.44.3" 1 0 0 0 "" 0 ""
-Bp6=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.403.14" 1 0 0 0 "" 0 ""
-Count=7
+Bp5=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.44.3" 0 0 0 0 "" 0 ""
+Bp6=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.403.12" 1 0 0 0 "" 0 ""
+Bp7=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.354.16" 1 0 0 0 "" 0 ""
+Bp8=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.116.11" 1 0 0 0 "" 0 ""
+Bp9=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.270.7" 1 0 0 0 "" 0 ""
+Bp10=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.322.15" 1 0 0 0 "" 0 ""
+Bp11=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.238.3" 1 0 0 0 "" 0 ""
+Bp12=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.463.3" 1 0 0 0 "" 0 ""
+Bp13=_ "STD_CODE" "{$PROJ_DIR$\Project\src\main.c}.840.17" 1 0 0 0 "" 0 ""
+Bp14=_ "STD_CODE" "{$PROJ_DIR$\Project\src\main.c}.1266.5" 1 0 0 0 "" 0 ""
+Bp15=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.469.3" 1 0 0 0 "" 0 ""
+Count=16
 [Aliases]
 Count=0
 SuppressDialog=0

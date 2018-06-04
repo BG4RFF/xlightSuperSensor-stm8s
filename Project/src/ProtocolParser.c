@@ -63,6 +63,7 @@ bool SendCfgBlock(uint8_t offset,uint8_t size,uint8_t isNeedUniqueid) {
     moSetPayloadType(P_CUSTOM);
     bMsgReady = 1;
     SendMyMessage();
+    return TRUE;
 }
 
 // Send spotlight log
@@ -138,12 +139,11 @@ uint8_t ParseProtocol(){
         if(gConfig.nodeID != XLA_PRODUCT_NODEID)
         {
           gConfig.nodeID = XLA_PRODUCT_NODEID;
-          gIsChanged = TRUE;
+          gIsConfigChanged = TRUE;
         }   
         if(_isAck)
         { // request nodeid response
           memcpy(gConfig.NetworkID, rcvMsg.payload.data, sizeof(gConfig.NetworkID));
-          gIsChanged = TRUE;
           GotNodeID();
         }
       }
@@ -228,7 +228,7 @@ uint8_t ParseProtocol(){
         gConfig.senMap = rcvMsg.payload.data[0] + rcvMsg.payload.data[1] * 256;
         break;
       }
-      gIsChanged = TRUE;
+      gIsConfigChanged = TRUE;
       Msg_NodeConfigAck(_sender, _sensor);
       return 1;
     }
@@ -736,7 +736,7 @@ void MsgScanner_ConfigAck(uint8_t offset,uint8_t cfglen,bool _isByUniqueid) {
 void Process_SetConfig(u8 _len) {
   uint8_t offset = rcvMsg.payload.data[1];
   memcpy((void *)((uint16_t)(&gConfig) + offset),rcvMsg.payload.data+2,_len);
-  gIsChanged = TRUE;
+  gIsConfigChanged = TRUE;
 }
 //////set config by uniqueid data struct/////////////////////
 //typedef struct
@@ -751,7 +751,7 @@ void Process_SetConfig(u8 _len) {
 void Process_SetDevConfig(u8 _len) {
     uint8_t offset = rcvMsg.payload.data[1];
     memcpy((void *)((uint16_t)(&gConfig) + offset),rcvMsg.payload.data+2+UNIQUE_ID_LEN,_len);
-    gIsChanged = TRUE;
+    gIsConfigChanged = TRUE;
 }
 //////set rf /////////////////////////////////////////////////
 //typedef struct
@@ -845,7 +845,7 @@ void Process_SetupRF(const UC *rfData,uint8_t rflen)
     gResetNode = TRUE;
   if(gResetNode || gResetRF || bNeedChangeCfg)
   {
-    gIsChanged = TRUE;
+    gIsConfigChanged = TRUE;
   }
 }
 //----------------------------------------------

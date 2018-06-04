@@ -1,7 +1,7 @@
 
 #include "infrared.h"
-#include "_global.h"
 #include "timer_2.h"
+#include "_global.h"
 
 #define BUFFER_LEN 10
 unsigned long  send_buf[BUFFER_LEN];

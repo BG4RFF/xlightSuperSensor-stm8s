@@ -97,6 +97,54 @@
   <group>
     <name>User</name>
     <group>
+      <name>Common</name>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\debugDefine.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\FlashDataStorage.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\FlashDataStorage.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\MyMessage.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\publicDefine.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\rf24l01.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\rf24l01.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\timer_2.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\timer_2.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\timer_4.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\timer_4.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\Uart2Dev.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\Uart2Dev.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\wwdg.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\wwdg.h</name>
+      </file>
+    </group>
+    <group>
       <name>inc</name>
       <file>
         <name>$PROJ_DIR$\Project\inc\_global.h</name>
@@ -123,9 +171,6 @@
         <name>$PROJ_DIR$\Project\inc\relay_key.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\Project\inc\rf24l01.h</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$\Project\inc\sen_als.h</name>
       </file>
       <file>
@@ -142,21 +187,6 @@
       </file>
       <file>
         <name>$PROJ_DIR$\Project\inc\sen_pm25.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\Project\inc\stm8s_conf.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\Project\inc\stm8s_it.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\Project\inc\timer_2.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\Project\inc\timer_4.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\Project\inc\Uart2Dev.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\Project\inc\xliNodeConfig.h</name>
@@ -186,9 +216,6 @@
         <name>$PROJ_DIR$\Project\src\relay_key.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\Project\src\rf24l01.c</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$\Project\src\sen_als.c</name>
       </file>
       <file>
@@ -206,20 +233,8 @@
       <file>
         <name>$PROJ_DIR$\Project\src\sen_pm25.c</name>
       </file>
-      <file>
-        <name>$PROJ_DIR$\Project\src\timer_2.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\Project\src\timer_4.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\Project\src\Uart2Dev.c</name>
-      </file>
     </group>
   </group>
-  <file>
-    <name>$PROJ_DIR$\Project\inc\sen_multi.h</name>
-  </file>
 </project>
 
 
