@@ -126,12 +126,6 @@
         <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\timer_2.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\timer_4.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\timer_4.h</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$\..\xlightCommon-stm8s\Xlight_lib\Uart2Dev.c</name>
       </file>
       <file>
@@ -162,9 +156,6 @@
         <name>$PROJ_DIR$\Project\inc\keySimulator.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\Project\inc\MyMessage.h</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$\Project\inc\ProtocolParser.h</name>
       </file>
       <file>
@@ -187,6 +178,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\Project\inc\sen_pm25.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Project\inc\timer_4.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\Project\inc\xliNodeConfig.h</name>
@@ -232,6 +226,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\Project\src\sen_pm25.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\Project\src\timer_4.c</name>
       </file>
     </group>
   </group>

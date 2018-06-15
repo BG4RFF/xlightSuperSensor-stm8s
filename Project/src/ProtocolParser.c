@@ -412,6 +412,14 @@ uint8_t ParseProtocol(){
           }
         }
       } 
+      else if(IS_TARGET_SPOTLIGHT(gConfig.type) && IS_TARGET_SPOTLIGHT(_type) ) 
+      {
+        for( uint8_t idx = 0; idx < _lenPayl; idx++ ) {
+          if( relay_set_key(idx+'1', rcvMsg.payload.data[idx] == '1') ) {
+            //Msg_Relay_Ack(_sender, _type, rcvMsg.payload.data[idx]);
+          }
+        }
+      }
       /*else if( IS_TARGET_AIRPURIFIER(_type) ) {
         // Parsing payload
         unsigned long buf[2];

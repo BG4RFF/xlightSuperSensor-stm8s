@@ -217,7 +217,7 @@ bool ToggleAll(uint8_t relay_key_map)
       }  
       if( relay_set_key(lv_key, lv_onoff) ) {
         Msg_Relay_Ack(NODEID_GATEWAY, lv_onoff ? V_RELAY_ON : V_RELAY_OFF, lv_key);
-        SendMyMessage();
+        //SendMyMessage();
       }
     }
   }
@@ -243,7 +243,7 @@ bool ToggleLoop(uint8_t relay_key_map,uint8_t index)
         bool lv_onoff = !relay_get_key(lv_key);
         if( relay_set_key(lv_key, lv_onoff) ) {
           Msg_Relay_Ack(NODEID_GATEWAY, lv_onoff ? V_RELAY_ON : V_RELAY_OFF, lv_key);
-          SendMyMessage();
+          //SendMyMessage();
         }
         if(lv_onoff)
         {// Off -> On, stay at current relay key
@@ -281,7 +281,7 @@ void LoopAll(uint8_t relay_key_map,uint8_t lv_act)
         lv_onoff = (BTN_ACT_ON == lv_act);
         if( relay_set_key(lv_key, lv_onoff) ) {
           Msg_Relay_Ack(NODEID_GATEWAY, lv_onoff ? V_RELAY_ON : V_RELAY_OFF, lv_key);
-          SendMyMessage();
+          //SendMyMessage();
         }
       }
     }
@@ -308,7 +308,7 @@ void LoopOne(uint8_t relay_key_map,uint8_t lv_act,uint8_t index)
           lv_key = index + '0';        
           if( relay_set_key(lv_key, lv_onoff) ) {
             Msg_Relay_Ack(NODEID_GATEWAY, lv_onoff ? V_RELAY_ON : V_RELAY_OFF, lv_key);         
-            SendMyMessage();
+            //SendMyMessage();
           }
         }
         else
@@ -316,7 +316,7 @@ void LoopOne(uint8_t relay_key_map,uint8_t lv_act,uint8_t index)
           lv_key = idx + '1';
           if( relay_set_key(lv_key, !lv_onoff) ) {
             Msg_Relay_Ack(NODEID_GATEWAY, !lv_onoff ? V_RELAY_ON : V_RELAY_OFF, lv_key);
-            SendMyMessage();
+            //SendMyMessage();
           }
         }
       }

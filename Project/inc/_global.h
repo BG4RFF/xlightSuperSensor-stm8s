@@ -8,7 +8,7 @@
 
 /* Exported types ------------------------------------------------------------*/
 /// Comment off line to disable panel buttons(spotlight need)
-//#define EN_PANEL_BUTTONS
+#define EN_PANEL_BUTTONS
 /// Comment off line to disable infrared(aircondition need)
 //#define EN_INFRARED
 /// Comment off line to disable Relay key input
@@ -215,8 +215,8 @@ void ProcessMyMessage();
 #define XLA_PRODUCT_NODEID        NODEID_SUPERSENSOR
 #else
 #define XLA_PRODUCT_NAME          "ZENREMOTE"
-#define XLA_PRODUCT_Type          ZEN_TARGET_AIRPURIFIER
-#define XLA_PRODUCT_NODEID        NODEID_KEYSIMULATOR
+#define XLA_PRODUCT_Type          ZEN_TARGET_SPOTLIGHT
+#define XLA_PRODUCT_NODEID        131
 #endif
 
 //#define TEST

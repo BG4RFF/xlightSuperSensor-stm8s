@@ -6,6 +6,7 @@
 #include "timer_4.h"
 #include "FlashDataStorage.h"
 #include "wwdg.h"
+#include "Uart2Dev.h"
 
 #ifdef ZENREMOTE
 #include "relay_key.h"
@@ -16,10 +17,6 @@
 
 #ifdef MULTI_SENSOR
 #include "sen_multi.h"
-#endif
-
-#ifdef DEBUG_LOG
-#include "Uart2Dev.h"
 #endif
 
 #ifdef EN_INFRARED
@@ -484,7 +481,6 @@ void LoadConfig()
   {
     gConfig.subID = 8;
   }
-    
 #ifdef EN_PANEL_BUTTONS
     if( gConfig.btnAction[0][0].action > 0x0F || gConfig.btnAction[1][0].action > 0x0F ) {
       memset(gConfig.btnAction, 0x00, sizeof(Button_Action_t) * MAX_NUM_BUTTONS);
@@ -734,6 +730,9 @@ int main( void ) {
   FLASH_DeInit();
   Read_UniqueID(_uniqueID, UNIQUE_ID_LEN);
   LoadConfig();
+  // add for colorful light bar
+  gConfig.btnAction[0][0].action = 0x08;
+  gConfig.btnAction[0][0].keyMap = 15;
 
   // on / off 3 times to reset device
   gConfig.swTimes++;
