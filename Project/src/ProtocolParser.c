@@ -414,9 +414,19 @@ uint8_t ParseProtocol(){
       } 
       else if(IS_TARGET_SPOTLIGHT(gConfig.type) && IS_TARGET_SPOTLIGHT(_type) ) 
       {
-        for( uint8_t idx = 0; idx < _lenPayl; idx++ ) {
+        if(_lenPayl >= 5)
+        {
+          if(_lenPayl >= 7) gConfig.filterTime = (rcvMsg.payload.data[4]-'0')*100+(rcvMsg.payload.data[5]-'0')*10+(rcvMsg.payload.data[6]-'0');
+          else if(_lenPayl >= 6) gConfig.filterTime = (rcvMsg.payload.data[4]-'0')*10+(rcvMsg.payload.data[5]-'0');
+          else if(_lenPayl >= 5) gConfig.filterTime = rcvMsg.payload.data[4]-'0';
+        }
+        else
+        {
+          gConfig.filterTime = 0;
+        }
+        uint8_t relaynum = (_lenPayl<=4)?_lenPayl:4;
+        for( uint8_t idx = 0; idx < relaynum; idx++ ) {
           if( relay_set_key(idx+'1', rcvMsg.payload.data[idx] == '1') ) {
-            //Msg_Relay_Ack(_sender, _type, rcvMsg.payload.data[idx]);
           }
         }
       }

@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=1409487997
+Checksum=-390156519
 [CallStack]
 ShowArgs=0
 [Disassembly]
@@ -32,22 +32,6 @@ LogEnabled=0
 GraphEnabled=0
 ShowTimeLog=1
 ShowTimeSum=1
-[Breakpoints]
-Bp0=_ "STD_CODE" "{$PROJ_DIR$\Project\src\button.c}.80.3" 0 0 0 0 "" 0 ""
-Bp1=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.73.3" 0 0 0 0 "" 0 ""
-Bp2=_ "STD_CODE" "{$PROJ_DIR$\Project\src\sen_pm25.c}.94.12" 0 0 0 0 "" 0 ""
-Bp3=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.44.3" 0 0 0 0 "" 0 ""
-Bp4=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.403.12" 1 0 0 0 "" 0 ""
-Bp5=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.354.16" 1 0 0 0 "" 0 ""
-Bp6=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.270.7" 1 0 0 0 "" 0 ""
-Bp7=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.354.16" 1 0 0 0 "" 0 ""
-Bp8=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.238.3" 0 0 0 0 "" 0 ""
-Bp9=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.463.3" 1 0 0 0 "" 0 ""
-Bp10=_ "STD_CODE" "{$PROJ_DIR$\Project\src\main.c}.1122.1" 0 0 0 0 "" 0 ""
-Bp11=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.469.3" 1 0 0 0 "" 0 ""
-Bp12=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.417.22" 1 0 0 0 "" 0 ""
-Bp13=_ "STD_CODE" "{$PROJ_DIR$\Project\src\main.c}.357.3" 1 0 0 0 "" 0 ""
-Count=14
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
@@ -55,6 +39,20 @@ Category=_ 0
 [TermIOLog]
 LoggingEnabled=_ 0
 LogFile=_ ""
+[Breakpoints]
+Bp0=_ "STD_CODE" "{$PROJ_DIR$\Project\src\button.c}.80.3" 0 0 0 0 "" 0 ""
+Bp1=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.73.3" 0 0 0 0 "" 0 ""
+Bp2=_ "STD_CODE" "{$PROJ_DIR$\Project\src\sen_pm25.c}.94.12" 0 0 0 0 "" 0 ""
+Bp3=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.44.3" 0 0 0 0 "" 0 ""
+Bp4=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.403.12" 1 0 0 0 "" 0 ""
+Bp5=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.354.16" 1 0 0 0 "" 0 ""
+Bp6=_ "STD_CODE" "{$PROJ_DIR$\Project\src\ProtocolParser.c}.354.16" 1 0 0 0 "" 0 ""
+Bp7=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.238.3" 0 0 0 0 "" 0 ""
+Bp8=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.463.3" 1 0 0 0 "" 0 ""
+Bp9=_ "STD_CODE" "{$PROJ_DIR$\Project\src\main.c}.1130.1" 0 0 0 0 "" 0 ""
+Bp10=_ "STD_CODE" "{$PROJ_DIR$\Project\src\infrared.c}.469.3" 1 0 0 0 "" 0 ""
+Bp11=_ "STD_CODE" "{$PROJ_DIR$\Project\src\main.c}.358.3" 1 0 0 0 "" 0 ""
+Count=12
 [Aliases]
 Count=0
 SuppressDialog=0

@@ -74,6 +74,12 @@ void relay_restore_keystates() {
   }  
 }
 
+void relay_set_keys(uint8_t keyvalue) {
+  for( u8 key = '1'; key <= '8'; key++ ) {
+    relay_set_key(key, BF_GET(keyvalue, key - '1', 1));
+  }  
+}
+
 void relay_gpio_write_bit(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef PortPins, bool _on)
 {
   if( _on ) {

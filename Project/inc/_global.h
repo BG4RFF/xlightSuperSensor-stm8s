@@ -134,7 +134,8 @@ typedef struct
   UC relay_key_value          :8;           // Relay Key Bitmap
 #ifdef EN_INFRARED  
   UC aircondition_on_status[20];            // aircondition last on status
-#endif 
+  UC filterTime               :8;        
+#endif          
 
   // Configurable parameters
   UC nodeID;                                // Node ID for this device

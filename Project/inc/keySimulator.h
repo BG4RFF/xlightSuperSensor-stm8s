@@ -14,7 +14,7 @@
 #define AIRPUR_LOW       "r2_r3+h1"
 #define AIRPUR_MEDIUM    "r1_r3+h2"
 #define AIRPUR_HIGH      "r1_r2+h3"
-#define AIRPUR_STOP      "r1_r2_r3"
+#define AIRPUR_STOP      "r1_r2_r3_r4"
 #define AIRPUR_CMD_LEN 8
 
 typedef struct

@@ -194,6 +194,7 @@ uint8_t mLastAddKeysimTime = 0;
 uint16_t ariquality_tick = 0;
 uint16_t tem_hum_tick = 0;
 #endif
+uint16_t filter_tick = 0;
 
 bool AddKeySimToBuf(u8 _target, const char *_keyString, u8 _len)
 {
@@ -1002,6 +1003,12 @@ int main( void ) {
       // reset rf
       ResetRFModule();
       ////////////rfscanner process/////////////////////////////// 
+      if(gConfig.filterTime>0 && filter_tick>=gConfig.filterTime*100)
+      {
+        filter_tick = 0;
+        uint8_t relay = (gConfig.relay_key_value+1)%15+1;
+        relay_set_keys(relay);
+      }
       // Send message if ready
 #ifdef TEST
       //PB4_High;
@@ -1074,6 +1081,7 @@ void tmrProcess() {
   //////zql add for relay key//////////////
   if(relay_loop_tick < 5000) relay_loop_tick++;
   //////zql add for relay key//////////////
+  if(filter_tick < gConfig.filterTime*100) filter_tick++;
 #endif  
 
 #ifdef MULTI_SENSOR

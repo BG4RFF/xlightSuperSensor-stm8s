@@ -13,12 +13,13 @@ typedef struct {
   GPIO_Pin_TypeDef pin;
 } keyPinMap_t;
 
-#define KEYMAP_TABLE_ROWS          3
+#define KEYMAP_TABLE_ROWS          4
 const keyPinMap_t keyMapTable[] = {
   // target     key     port    pin
   {0,           '1',    GPIOD,  GPIO_PIN_4},    // Up
   {0,           '2',    GPIOD,  GPIO_PIN_3},    // Down
-  {0,           '3', 	GPIOD, 	GPIO_PIN_2}     // Stop
+  {0,           '3', 	GPIOD, 	GPIO_PIN_2},    // Stop
+  {0,           '4', 	GPIOD, 	GPIO_PIN_0}     // Stop
 };
 
 bool LookupKeyPinMap(uint8_t target, uint8_t key, GPIO_TypeDef **port, GPIO_Pin_TypeDef *pin)
